@@ -15,7 +15,7 @@ contract DeployBoxContract is Script{
         ERC1967Proxy proxy = new ERC1967Proxy(address(box),"");
         vm.stopBroadcast();
 
-        return address(proxy);
+        return (address(proxy));
     }
 
     function run() external returns(address){
