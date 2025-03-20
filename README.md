@@ -1,66 +1,95 @@
-## Foundry
+## Upgradable contracts
 
-**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
+- As we know that contracts are immutable once it is deployed.
+- **Upgradable contracts and EIP-1967** gives power to developer to change and add logic/functionality!!!
 
-Foundry consists of:
+### Upgradable Contracts methods
 
--   **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
--   **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
--   **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
--   **Chisel**: Fast, utilitarian, and verbose solidity REPL.
+1. `Not really/Parameterized`:
+    - Can't add new storage,logic
+    - Updates parameters only!!!
 
-## Documentation
+2. `Migration method`:
+    - develop new contract with no relation with older contract
+    - Users need to be convenced hardly to move and use new contract
+    - Older address will be changed and new address are assigned
 
-https://book.getfoundry.sh/
+3. `Proxies Upgradable contracts`:
+    - Uses low-lvel function calls and methods
+    - `delegate calls` -> calls the function of other contract delegatally and updates state/storage at own contract
 
-## Usage
 
-### Build
 
-```shell
-$ forge build
-```
+### Proxies and Implementation contracts
 
-### Test
 
-```shell
-$ forge test
-```
+1. **`Proxy Contract`**:
+    - An intermediate layer between user and contract logic/functionality
+    - Holds state data and delegate calls to implementation contract to use the functionality
+    - uses `delegate calls` to implementation contract to use the functionality
 
-### Format
+2. **`Implementation Contract`**:
+    - Actual logic or functionality of protocol
+    - This contract contains the bugs/componenets that need to be upgrades or modify
 
-```shell
-$ forge fmt
-```
+3. **`Upgradability Mechanism`**:
+    - We will deploy new implementation contract with fresh and new logic
+    - Proxy is updated to delegate calls to new implementation contract
+    - Maintains users data integrity
+  
+**Note: all the storage value is stored in proxy contract. Proxies contracts state is changing all time and not of implementation contract.**
 
-### Gas Snapshots
 
-```shell
-$ forge snapshot
-```
+### Limitations of Proxies contract
 
-### Anvil
+1. **Storage clashes**
+2. **Function selector clashes**
 
-```shell
-$ anvil
-```
 
-### Deploy
+### Implementation of Proxy contract
 
-```shell
-$ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
-```
 
-### Cast
+1. `Transparent Proxy Pattern`:
+   - `Admins` can call only admins functions and they can't call rest of implementation contract function
+   - `Users` can call only impl. functions and not admins's contract 
+  
 
-```shell
-$ cast <subcommand>
-```
+2. **`Universal Upgradable Proxies (UUPs)`**:
+    - Main logic/functionality of protocol -> Implementation contract
+    - Users interact with Proxies contract
+    - Proxies contracts state's is changed and not of impl. contract
+    - `Proxies contract` will `delegate calls` to implementaion contract for functionallity
 
-### Help
 
-```shell
-$ forge --help
-$ anvil --help
-$ cast --help
-```
+### EIP-1967 -> Storage Slots
+
+- EIP-1967 is a standard that defines specific storage slots in smart contracts to securely store the addresses of:
+
+1. `The Implementation Contract (Logic Contract)`
+2. `The Admin (Owner) Address`
+
+- This standard is widely adopted in upgradable smart contracts **because it prevents storage collisions** and ensures consistency when upgrading contracts.
+- EIP-1967 defines `fixed storage slots` for the implementation address and admin address.
+- These slots are designed to be `unique and unlikely to overlap` with other storage variables.
+
+
+**Note: EIP-1967 prevents the storage clashes by introducing storage slots and also prevents the function selector clashes**
+
+
+
+### DELEGATE CALLS
+
+- A `low-level function call` similar to call
+- Uses `function signature` to call the function of another contract
+- Stores value in storage slots and access it according to `index/slot assigned` to state in impl. contract
+- **The ordering of variables in implementaion contract and proxies contracts should be same**\
+
+
+
+## Sources
+
+1. **Proxy and Implementation contracts**:
+   - https://medium.com/@social_42205/proxy-contracts-in-solidity-f6f5ffe999bd
+
+2. **Openzeppelin Upgradable Contracts**:
+   -  https://github.com/OpenZeppelin/openzeppelin-contracts-upgradeable/tree/v5.2.0

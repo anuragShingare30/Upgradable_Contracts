@@ -82,4 +82,14 @@
 - A `low-level function call` similar to call
 - Uses `function signature` to call the function of another contract
 - Stores value in storage slots and access it according to `index/slot assigned` to state in impl. contract
-- **The ordering of variables in implementaion contract and proxies contracts should be same**
+- **The ordering of variables in implementaion contract and proxies contracts should be same**\
+
+
+
+## Sources
+
+1. **Proxy and Implementation contracts**:
+   - https://medium.com/@social_42205/proxy-contracts-in-solidity-f6f5ffe999bd
+
+2. **Openzeppelin Upgradable Contracts**:
+   -  https://github.com/OpenZeppelin/openzeppelin-contracts-upgradeable/tree/v5.2.0
