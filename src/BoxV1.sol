@@ -6,14 +6,12 @@ import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Ini
 import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
 
-// storage value is stored in proxy contract and not in implementation contract
-// "initializer" function need to be called from the proxy contract only!!!
 
 contract BoxV1 is Initializable, OwnableUpgradeable, UUPSUpgradeable {
     uint256 internal value;
 
     /// @custom:oz-upgrades-unsafe-allow constructor
-    // preventing any future reinitialization
+    /// @dev preventing any future reinitialization
     constructor() {
         _disableInitializers();
     }
