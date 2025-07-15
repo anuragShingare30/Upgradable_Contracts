@@ -1,17 +1,15 @@
-## **Upgradable contracts**
-
+# Upgradeable contracts
 
 1. **Using upgradeable contracts library** 
     - If using external libraries like `Openzeppelin`, the contracts should be `upgradeable`
     - **Example**: USe `ERC20Upgradeable` instead of `ERC20 contract`
 
 
-2. **Initializer function**
+2. **Initializer function and initializer modifier**
     - When using `OpenZeppelin Upgrades contract no constructor should be used to initialize the states`
     - instead we use function name `initialize`, where you run all the setup logic
 
     ```solidity
-    /// @dev this is the main contract that will be deployed
     contract UpgradeableContract is Initializable, OwnableUpgradeable, UUPSUpgradeable {
         uint256 internal value;
 
@@ -20,6 +18,8 @@
         }
 
         /// @dev all setup will be in initialize function instead of constructor
+        /// @dev initialize() function should be called by owner just after deployment
+        /// @dev failure to initialize will lead to exploit
         function initialize(uint256 _value) public initializer {
             __Ownable_init();
             __UUPSUpgradeable_init();
@@ -30,7 +30,8 @@
 
 
 
-3. **Parent contracts should contains initialize function and onlyInitializing modifier**:
+
+3. **Parent contracts contains an onlyInitializing modifier**:
     - `Inherited/Parent/Base` contracts should have an `initializer function __Parent_init()` that includes `onlyInitializing` modifier
 
     ```solidity
@@ -41,12 +42,13 @@
         function __ParentContract_init(uint256 _value) internal onlyInitializing {
             __ParentContract_init_unchained(_value);
         }
+
         function __ParentContract_init_unchained(uint256 _value) internal onlyInitializing {
             value = _value;
         }
     }
 
-    /// @dev Our main contract Upgradeable contract should implement the parent initializer function compulsorily, otherwise reverts
+    /// @dev Upgradeable contract should implement the parent initializer function compulsorily
     contract UpgradeableContract is Initializable, OwnableUpgradeable, UUPSUpgradeable, ParentContractUpgradeable {
         constructor() {
             _disableInitializers(); // locks the contract to prevent re-initialization
@@ -55,7 +57,7 @@
         function initialize(uint256 _value) public initializer {
             __Ownable_init(); // parent contract that contains onlyIntializing modifier
             __UUPSUpgradeable_init();
-            __ParentContract_init(_value_); // parent contract that contains onlyIntializing modifier
+            __ParentContract_init(tswapAddress); // parent contract that contains onlyIntializing modifier
         }
     }
     ```
@@ -63,9 +65,9 @@
 
    
 4. **Initializing Implementation contract**
-   - Do not leave an `implementation contract uninitialized!!!!!!`
-   - An uninitialized implementation contract can be taken over by an attacker
-   - `_disableInitializers() function in the constructor` to automatically lock it when it is deployed:
+   - Do not leave an` implementation contract uninitialized`
+   -  An uninitialized implementation contract can be taken over by an attacker
+   -  `_disableInitializers() function in the constructor` to automatically lock it when it is deployed:
 
     ```solidity
     contract UpgradeableContract is Initializable {
